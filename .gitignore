@@ -1,0 +1,14 @@
+
+node_modules/
+
+# Archivos de entorno (donde pondrás tus claves de MySQL más adelante)
+.env
+
+# Logs y archivos temporales
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
