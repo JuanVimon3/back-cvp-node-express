@@ -5,6 +5,10 @@ const app = express(); // Crear una instancia de la aplicación Express
 
 const port = 3000; // Puerto en el que se ejecutará el servidor
 
+const bcrypt = require('bcrypt'); // Instalar bcrypt para manejar el hashing de contraseñas, aunque en este código no se está utilizando, es recomendable para mejorar la seguridad de las contraseñas almacenadas en la base de datos
+
+const saltRounds = 10; // Número de rondas de sal para el hashing de contraseñas, esto determina la complejidad del hash generado, un valor más alto significa un hash más seguro pero también más lento de generar
+
 
 // Get the client
 const mysql = require('mysql2/promise');
@@ -31,17 +35,28 @@ const login = async (req: any, res: any) => { // Función asincrónica para mane
     try {
         const {nombre, contraseña} = req.body;
 
-    const [rows, fields] = await connection.execute('SELECT * FROM Usuario  WHERE nombre = ? AND contraseña = ?', [nombre, contraseña]);
-    console.log(nombre, contraseña);
+    const [rows] : any = await connection.execute('SELECT * FROM Usuario  WHERE nombre = ? ', [nombre]);
+    
+
     if(rows.length > 0) {
-        res.json({message: 'Login exitoso', user: rows[0]});
-    } else {
-        res.status(401).json({messaje: 'Usuario o contraseña incorrectos'});
-    }
+
+        const user = rows[0]; // Obtener el primer usuario encontrado en la base de datos, se asume que el nombre de usuario es único, por lo que solo debería haber un resultado
+
+        const passwordMatch = await bcrypt.compare(contraseña, user.contraseña); // Comparar la contraseña proporcionada con el hash almacenado en la base de datos utilizando bcrypt.compare, esto devuelve true si las contraseñas coinciden y false si no coinciden
+
+        if (passwordMatch) {
+                // Si coincide, enviamos respuesta y salimos de la función con 'return'
+                return res.status(200).json({
+                    message: 'Login exitoso',
+                    user: { nombre: user.nombre, cedula: user.cedula, email: user.email }
+                });
+                }
+            }
+        res.status(401).json({ message: 'Usuario o contraseña incorrectos' });
     } catch (error) {
         console.error('Error en la consulta a la base de datos:', error);
-        res.status(500).json({messaje: 'Error interno del servidor'});
-    }
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }       
     
 };
 
@@ -50,7 +65,10 @@ const register = async (req: any, res: any) => { // Función asincrónica para m
     try {
 
         const {nombre, contraseña, cedula, email} = req.body;
-        const [result]: any = await connection.execute('INSERT INTO Usuario (nombre, contraseña, cedula, email) VALUES (?, ?, ?, ?)', [nombre, contraseña, cedula, email]);
+
+        const hashedPassword = await bcrypt.hash(contraseña, saltRounds); // Generar un hash de la contraseña proporcionada utilizando bcrypt.hash, esto toma la contraseña y el número de rondas de "sal" para generar un hash o cifrado seguro que se puede almacenar en la base de datos en lugar de la contraseña en texto plano
+
+        const [result]: any = await connection.execute('INSERT INTO Usuario (nombre, contraseña, cedula, email) VALUES (?, ?, ?, ?)', [nombre, hashedPassword, cedula, email]);
 
         if(result && result.affectedRows > 0) {
             res.status(201).json({message: 'Registro exitoso', user: {nombre, cedula, email}});  
