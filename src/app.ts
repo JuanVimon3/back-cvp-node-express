@@ -5,13 +5,13 @@ const app = express(); // Crear una instancia de la aplicación Express
 
 const port = 3000; // Puerto en el que se ejecutará el servidor
 
-const bcrypt = require('bcrypt'); // Instalar bcrypt para manejar el hashing de contraseñas, aunque en este código no se está utilizando, es recomendable para mejorar la seguridad de las contraseñas almacenadas en la base de datos
+const bcrypt = require('bcrypt'); // Instalar bcrypt para manejar el hashing de contraseñas, es recomendable para mejorar la seguridad de las contraseñas almacenadas en la base de datos
 
 const saltRounds = 10; // Número de rondas de sal para el hashing de contraseñas, esto determina la complejidad del hash generado, un valor más alto significa un hash más seguro pero también más lento de generar
 
 
 // Get the client
-const mysql = require('mysql2/promise');
+const mysql = require('mysql2/promise'); // Instalar mysql2 para manejar la conexión a la base de datos MySQL, se utiliza la versión "promise" para poder usar async/await en las consultas a la base de datos y mejorar la legibilidad del código al manejar operaciones asíncronas de manera más sencilla.
 
 // Create the connection to database
 
@@ -27,7 +27,7 @@ const connection = mysql.createPool({ // Crear un pool de conexiones para maneja
 
 module.exports = connection; // Exportar la conexión para usarla en otros archivos
 
-app.use(express.json());
+app.use(express.json()); // Middleware para parsear el cuerpo de las solicitudes entrantes como JSON, esto permite que el servidor pueda entender y procesar los datos enviados en formato JSON en las solicitudes POST, PUT, etc.
 
 console.log('Hola mundo- Express');
 
