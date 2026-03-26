@@ -81,7 +81,7 @@ const register = async (req: any, res: any) => { // Función asincrónica para m
     }
 }
 
-
+//Endpoints del servidor con los métodos HTTP correspondientes para manejar las solicitudes entrantes.
 app.get('/', (req: any, res: any) => { // Ruta raíz del servidor
     res.send(`Servidor funcionando en http://localhost:${port}`)
 })
@@ -89,6 +89,7 @@ app.get('/', (req: any, res: any) => { // Ruta raíz del servidor
 app.post('/login', login); // Ruta para manejar el login, se llama a la función login cuando se recibe una solicitud POST en /login 
 
 app.post('/register', register); // Ruta para manejar el registro de usuarios, se llama a la función register cuando se recibe una solicitud POST en /register
+
 
 
 app.listen(port, () => { // Iniciar el servidor en el puerto especificado, en este caso 3000
